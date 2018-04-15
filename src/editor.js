@@ -16,11 +16,12 @@ function onLoad() {
     footerArea = document.getElementById('footer_fixed');
 
     editor = ace.edit('input_txt');
-    editor.getSession().setMode('ace/mode/plain_text');
     editor.setTheme('ace/theme/dracula');
     editor.focus();
     editor.gotoLine(1);
     editor.renderer.setShowPrintMargin(false);
+
+    setEditorTheme();
 
     document.addEventListener('dragover', (event) => {
         event.preventDefault();
@@ -82,6 +83,7 @@ function readFile(path) {
         }
         footerArea.innerHTML = path;
         editor.setValue(text.toString(), -1);
+        setEditorTheme(path);
     });
 }
 
@@ -112,6 +114,8 @@ function writeFile(path, data) {
     fs.writeFile(path, data, (error) => {
         if (error != null) {
             alert('error : ' + error);
+        } else {
+            setEditorTheme(path);
         }
     });
 }
@@ -137,4 +141,37 @@ function saveNewFile() {
             }
         }
     );
+}
+
+function setEditorTheme(fileName = '') {
+    const type = fileName.split('.');
+    const ext = type[type.length - 1].toLowerCase()
+    switch (ext) {
+        case 'txt':
+            editor.getSession().setMode('ace/mode/plain_text');
+            break;
+        case 'py':
+            editor.getSession().setMode('ace/mode/python');
+            break;
+        case 'rb':
+            editor.getSession().setMode('ace/mode/ruby');
+            break;
+        case 'c':
+        case 'cpp':
+        case 'h':
+            editor.getSession().setMode('ace/mode/c_cpp');
+            break
+        case 'html':
+            editor.getSession().setMode('ace/mode/html');
+            break;
+        case 'js':
+            editor.getSession().setMode('ace/mode/javascript');
+            break;
+        case 'md':
+            editor.getSession().setMode('ace/mode/markdown');
+            break;
+        default:
+            editor.getSession().setMode('ace/mode/plain_text');
+            break;
+    }
 }
