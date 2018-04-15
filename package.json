@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ./src",
+    "build-macOS": "electron-packager ./src shimarin --platform=darwin --arch=x64 --overwrite --icon=src/shimarin.ico",
+    "build-windows": "electron-packager ./src shimarin --platform=win32 --arch=x64 --overwrite --icon=src/shimarin.ico"
   },
   "keywords": [],
   "author": "",
