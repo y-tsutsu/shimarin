@@ -55,23 +55,21 @@ function onLoad() {
 
 function openLoadFile() {
     const win = BrowserWindow.getFocusedWindow();
-
-    dialog.showOpenDialog(
-        win,
-        {
-            properties: ['openFile'],
-            filters: [
-                {
-                    name: 'Documents',
-                    extensions: ['*']
-                }
-            ]
-        },
-        (fileNames) => {
-            if (fileNames) {
-                readFile(fileNames[0]);
+    dialog.showOpenDialog(win, {
+        properties: ['openFile'],
+        filters: [
+            {
+                name: 'Documents',
+                extensions: ['*']
             }
-        });
+        ]
+    }).then(result => {
+        if (!result.canceled) {
+            readFile(result.filePaths[0]);
+        }
+    }).catch(err => {
+        console.log(err)
+    });
 }
 
 function readFile(path) {
@@ -94,20 +92,19 @@ function saveFile() {
     }
 
     const win = BrowserWindow.getFocusedWindow();
-
     dialog.showMessageBox(win, {
         title: 'ファイルの上書き保存を行います。',
         type: 'info',
         buttons: ['OK', 'Cancel'],
         detail: '本当に保存しますか？'
-    },
-        (response) => {
-            if (response === 0) {
-                const data = editor.getValue();
-                writeFile(currentPath, data);
-            }
+    }).then(result => {
+        if (result.response === 0) {
+            const data = editor.getValue();
+            writeFile(currentPath, data);
         }
-    );
+    }).catch(err => {
+        console.log(err)
+    });
 }
 
 function writeFile(path, data) {
@@ -122,25 +119,23 @@ function writeFile(path, data) {
 
 function saveNewFile() {
     const win = BrowserWindow.getFocusedWindow();
-    dialog.showSaveDialog(
-        win,
-        {
-            properties: ['openFile'],
-            filters: [
-                {
-                    name: 'Documents',
-                    extensions: ['*']
-                }
-            ]
-        },
-        (fileName) => {
-            if (fileName) {
-                const data = editor.getValue();
-                currentPath = fileName;
-                writeFile(currentPath, data);
+    dialog.showSaveDialog(win, {
+        properties: ['openFile'],
+        filters: [
+            {
+                name: 'Documents',
+                extensions: ['*']
             }
+        ]
+    }).then(result => {
+        if (!result.canceled) {
+            const data = editor.getValue();
+            currentPath = result.filePath;
+            writeFile(currentPath, data);
         }
-    );
+    }).catch(err => {
+        console.log(err)
+    });
 }
 
 function setEditorTheme(fileName = '') {
