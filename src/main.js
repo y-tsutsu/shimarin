@@ -5,7 +5,15 @@ const url = require('url');
 let mainWindow;
 
 function createWindow() {
-    mainWindow = new BrowserWindow({ width: 800, height: 600, 'icon': __dirname + '/shimarin.ico', });
+    mainWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
+        webPreferences: {
+            preload: `${__dirname}/preload.js`,
+            enableRemoteModule: true
+        },
+        'icon': __dirname + '/shimarin.ico'
+    });
 
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'index.html'),

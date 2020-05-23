@@ -1,5 +1,5 @@
-const fs = require('fs');
-const { BrowserWindow, dialog } = require('electron').remote;
+const fs = remote.require('fs');
+const { BrowserWindow, dialog } = remote;
 
 let inputArea = null;
 let inputTxt = null;
