@@ -10,7 +10,9 @@ function createWindow() {
         height: 600,
         webPreferences: {
             preload: `${__dirname}/preload.js`,
-            enableRemoteModule: true
+            enableRemoteModule: true,
+            nodeIntegration: true,
+            contextIsolation: false
         },
         'icon': __dirname + '/shimarin.ico'
     });
