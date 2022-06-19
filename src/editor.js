@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { BrowserWindow, dialog } = require('electron').remote;
+const { ipcRenderer } = require('electron');
 
 let inputArea = null;
 let inputTxt = null;
@@ -53,23 +53,11 @@ function onLoad() {
     });
 };
 
-function openLoadFile() {
-    const win = BrowserWindow.getFocusedWindow();
-    dialog.showOpenDialog(win, {
-        properties: ['openFile'],
-        filters: [
-            {
-                name: 'Documents',
-                extensions: ['*']
-            }
-        ]
-    }).then(result => {
-        if (!result.canceled) {
-            readFile(result.filePaths[0]);
-        }
-    }).catch(err => {
-        console.log(err)
-    });
+async function openLoadFile() {
+    const filename = await ipcRenderer.invoke('open-read-dialog');
+    if (filename !== '') {
+        readFile(filename);
+    }
 }
 
 function readFile(path) {
@@ -85,31 +73,21 @@ function readFile(path) {
     });
 }
 
-function saveFile() {
+async function saveFile() {
     if (currentPath === '') {
         saveNewFile();
         return;
     }
-
-    const win = BrowserWindow.getFocusedWindow();
-    dialog.showMessageBox(win, {
-        title: 'ファイルの上書き保存を行います。',
-        type: 'info',
-        buttons: ['OK', 'Cancel'],
-        detail: '本当に保存しますか？'
-    }).then(result => {
-        if (result.response === 0) {
-            const data = editor.getValue();
-            writeFile(currentPath, data);
-        }
-    }).catch(err => {
-        console.log(err)
-    });
+    const isYes = await ipcRenderer.invoke('show-message-box');
+    if (isYes) {
+        const data = editor.getValue();
+        writeFile(currentPath, data);
+    }
 }
 
 function writeFile(path, data) {
     fs.writeFile(path, data, (error) => {
-        if (error != null) {
+        if (error !== null) {
             alert('error : ' + error);
         } else {
             setEditorTheme(path);
@@ -117,25 +95,14 @@ function writeFile(path, data) {
     });
 }
 
-function saveNewFile() {
-    const win = BrowserWindow.getFocusedWindow();
-    dialog.showSaveDialog(win, {
-        properties: ['openFile'],
-        filters: [
-            {
-                name: 'Documents',
-                extensions: ['*']
-            }
-        ]
-    }).then(result => {
-        if (!result.canceled) {
-            const data = editor.getValue();
-            currentPath = result.filePath;
-            writeFile(currentPath, data);
-        }
-    }).catch(err => {
-        console.log(err)
-    });
+async function saveNewFile() {
+    const filename = await ipcRenderer.invoke('open-save-dialog');
+    console.log(filename);
+    if (filename !== '') {
+        const data = editor.getValue();
+        currentPath = filename;
+        writeFile(filename, data);
+    }
 }
 
 function setEditorTheme(fileName = '') {

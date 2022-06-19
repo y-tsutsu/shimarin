@@ -1,4 +1,4 @@
-const { app, Menu, BrowserWindow } = require('electron');
+const { app, dialog, ipcMain, Menu, BrowserWindow } = require('electron');
 const path = require('path');
 const url = require('url');
 
@@ -45,4 +45,52 @@ app.on('activate', () => {
     if (mainWindow === null) {
         createWindow();
     }
+});
+
+ipcMain.handle('open-read-dialog', async (e, arg) => {
+    const win = BrowserWindow.getFocusedWindow();
+    return await dialog.showOpenDialog(win, {
+        properties: ['openFile'],
+        filters: [
+            {
+                name: 'Documents',
+                extensions: ['*']
+            }
+        ]
+    }).then(result => {
+        return result.canceled ? "" : result.filePaths[0];
+    }).catch(err => {
+        console.log(err)
+    });
+});
+
+ipcMain.handle('open-save-dialog', async (e, arg) => {
+    const win = BrowserWindow.getFocusedWindow();
+    return await dialog.showSaveDialog(win, {
+        properties: ['openFile'],
+        filters: [
+            {
+                name: 'Documents',
+                extensions: ['*']
+            }
+        ]
+    }).then(result => {
+        return result.canceled ? "" : result.filePath;
+    }).catch(err => {
+        console.log(err)
+    });
+});
+
+ipcMain.handle('show-message-box', async (e, arg) => {
+    const win = BrowserWindow.getFocusedWindow();
+    return await dialog.showMessageBox(win, {
+        title: 'ファイルの上書き保存を行います。',
+        type: 'info',
+        buttons: ['OK', 'Cancel'],
+        detail: '本当に保存しますか？'
+    }).then(result => {
+        return result.response === 0;
+    }).catch(err => {
+        console.log(err)
+    })
 });
